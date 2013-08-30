@@ -10,7 +10,7 @@ store(Key, Value) ->
     server ! {store, {Key, Value}}.
 
 lookup(Key) ->
-    <fixme> ! {lookup, {Key, self()}},
+    server ! {lookup, {Key, self()}},
     receive
 	Msg ->
 	    {ok, Msg}
@@ -26,9 +26,10 @@ init() ->
 
 loop(State) ->
     receive
-	{lookup, {_Key, From}} ->
-	    From ! State;
-	{store, {<fixme>, Value}} ->
+	{lookup, {Key, From}} ->
+	    From ! proplists:get_value(Key, State),
+        loop(State);
+	{store, {Key, Value}} ->
 	    io:format("storing ~p~n", [Key]),
 	    loop([{Key, Value}|State])
     end.
